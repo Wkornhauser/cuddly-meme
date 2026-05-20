@@ -25,11 +25,11 @@ def parse_query(argv: list[str]) -> str:
     Prints usage to stderr and exits 1 if the resulting string is empty
     or whitespace-only.
     """
-    query = " ".join(argv[1:]).strip()
-    if not query:
+    text = " ".join(argv[1:]).strip()
+    if not text:
         print('Usage: python research.py "your question"', file=sys.stderr)
         raise SystemExit(1)
-    return query
+    return text
 
 
 def check_api_key(env: Mapping[str, str]) -> None:
