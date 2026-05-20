@@ -21,6 +21,8 @@ class TestParseQuery:
         with pytest.raises(SystemExit) as excinfo:
             parse_query(["research.py", "   "])
         assert excinfo.value.code == 1
+        captured = capsys.readouterr()
+        assert "Usage" in captured.err
 
 
 class TestCheckApiKey:
@@ -38,3 +40,5 @@ class TestCheckApiKey:
         with pytest.raises(SystemExit) as excinfo:
             check_api_key({"ANTHROPIC_API_KEY": ""})
         assert excinfo.value.code == 1
+        captured = capsys.readouterr()
+        assert "ANTHROPIC_API_KEY" in captured.err
