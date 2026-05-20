@@ -1,6 +1,6 @@
 import pytest
 
-from research import parse_query, check_api_key
+from research import parse_query, check_api_key, build_options
 
 
 class TestParseQuery:
@@ -42,9 +42,6 @@ class TestCheckApiKey:
         assert excinfo.value.code == 1
         captured = capsys.readouterr()
         assert "ANTHROPIC_API_KEY" in captured.err
-
-
-from research import build_options
 
 
 class TestBuildOptions:
