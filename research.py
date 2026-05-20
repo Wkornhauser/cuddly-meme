@@ -101,6 +101,11 @@ async def run_query(prompt: str, options: ClaudeAgentOptions) -> None:
 
 async def main() -> None:
     """Orchestrate one research run end-to-end."""
+    # Windows consoles default to cp1252 and crash on common Unicode (e.g. →, em-dashes).
+    # Reconfigure stdio to UTF-8 so streamed output survives intact. No-op on systems
+    # where stdout is already UTF-8.
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
     prompt = parse_query(sys.argv)
     check_api_key(os.environ)
     options = build_options()
@@ -108,8 +113,4 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    # Windows consoles default to cp1252 and crash on common Unicode (e.g. →, em-dashes).
-    # Reconfigure stdio to UTF-8 so streamed output survives intact.
-    sys.stdout.reconfigure(encoding="utf-8")
-    sys.stderr.reconfigure(encoding="utf-8")
     asyncio.run(main())
