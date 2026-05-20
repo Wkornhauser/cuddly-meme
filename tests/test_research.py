@@ -42,3 +42,24 @@ class TestCheckApiKey:
         assert excinfo.value.code == 1
         captured = capsys.readouterr()
         assert "ANTHROPIC_API_KEY" in captured.err
+
+
+from research import build_options
+
+
+class TestBuildOptions:
+    def test_returns_options_with_websearch_and_webfetch_allowed(self):
+        opts = build_options()
+        assert "WebSearch" in opts.allowed_tools
+        assert "WebFetch" in opts.allowed_tools
+
+    def test_caps_max_turns_at_six(self):
+        opts = build_options()
+        assert opts.max_turns == 6
+
+    def test_system_prompt_mentions_one_pass(self):
+        opts = build_options()
+        # The system prompt should constrain Claude to a single research pass.
+        assert opts.system_prompt is not None
+        text = opts.system_prompt.lower()
+        assert "one pass" in text or "one round" in text or "exactly one" in text

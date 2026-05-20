@@ -9,6 +9,8 @@ from __future__ import annotations
 import sys
 from typing import Mapping
 
+from claude_agent_sdk import ClaudeAgentOptions
+
 
 def parse_query(argv: list[str]) -> str:
     """Join argv[1:] into a single query string.
@@ -35,3 +37,28 @@ def check_api_key(env: Mapping[str, str]) -> None:
             file=sys.stderr,
         )
         raise SystemExit(1)
+
+
+SYSTEM_PROMPT = (
+    "You are a fast research assistant. The user will ask a question that "
+    "requires brief web research. Do exactly one pass:\n"
+    "1. Use WebSearch once for the question.\n"
+    "2. Use WebFetch on at most 1-3 of the most promising results to read "
+    "their content.\n"
+    "3. Write a concise, direct answer - a few short paragraphs or a tight "
+    "list.\n\n"
+    "Constraints:\n"
+    "- Do not run follow-up searches or refine the query - one pass only.\n"
+    "- Do not list URLs or cite sources unless the user explicitly asks.\n"
+    "- Keep the answer focused; do not pad.\n"
+    "- Only use the WebSearch and WebFetch tools."
+)
+
+
+def build_options() -> ClaudeAgentOptions:
+    """Construct the ClaudeAgentOptions used for every research run."""
+    return ClaudeAgentOptions(
+        system_prompt=SYSTEM_PROMPT,
+        allowed_tools=["WebSearch", "WebFetch"],
+        max_turns=6,
+    )
