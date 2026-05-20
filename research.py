@@ -9,7 +9,14 @@ from __future__ import annotations
 import sys
 from typing import Mapping
 
-from claude_agent_sdk import ClaudeAgentOptions
+from claude_agent_sdk import (
+    AssistantMessage,
+    ClaudeAgentOptions,
+    CLINotFoundError,
+    ProcessError,
+    TextBlock,
+    query,
+)
 
 
 def parse_query(argv: list[str]) -> str:
@@ -62,3 +69,29 @@ def build_options() -> ClaudeAgentOptions:
         allowed_tools=["WebSearch", "WebFetch"],
         max_turns=6,
     )
+
+
+async def run_query(prompt: str, options: ClaudeAgentOptions) -> None:
+    """Run a single shallow research pass and stream assistant text to stdout.
+
+    Prints only TextBlock content from AssistantMessage messages; tool-use
+    and tool-result messages are deliberately skipped to keep stdout clean.
+    """
+    try:
+        async for message in query(prompt=prompt, options=options):
+            if isinstance(message, AssistantMessage):
+                for block in message.content:
+                    if isinstance(block, TextBlock):
+                        print(block.text, end="", flush=True)
+        # Final newline so the shell prompt lands on its own line.
+        print()
+    except CLINotFoundError:
+        print(
+            "Claude Code CLI not found on PATH. Install with:\n"
+            "  npm install -g @anthropic-ai/claude-code",
+            file=sys.stderr,
+        )
+        raise SystemExit(1)
+    except ProcessError as exc:
+        print(f"Claude CLI process error: {exc}", file=sys.stderr)
+        raise SystemExit(2)
