@@ -6,6 +6,8 @@ Usage:
 
 from __future__ import annotations
 
+import asyncio
+import os
 import sys
 from typing import Mapping
 
@@ -95,3 +97,15 @@ async def run_query(prompt: str, options: ClaudeAgentOptions) -> None:
     except ProcessError as exc:
         print(f"Claude CLI process error: {exc}", file=sys.stderr)
         raise SystemExit(2)
+
+
+async def main() -> None:
+    """Orchestrate one research run end-to-end."""
+    prompt = parse_query(sys.argv)
+    check_api_key(os.environ)
+    options = build_options()
+    await run_query(prompt, options)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
